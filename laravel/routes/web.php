@@ -14,5 +14,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/gateways');
 });
+
+Route::middleware(['auth.web'])->group(function () {
+    Route::get('/gateways', 'GatewayController@showAllGatewaysPage');
+    Route::get('/gateways/create', 'GatewayController@showGatewayActivationPage');
+});
+
+// Route::get('/users', 'UserController@create');
+
+Route::get('/auth/login', 'AuthController@showLoginPage');
+Route::post('/auth/login', 'AuthController@login');
+Route::post('/auth/logout', 'AuthController@logout');
