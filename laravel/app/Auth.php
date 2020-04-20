@@ -31,7 +31,7 @@ class Auth
             throw new UserException(null, UserException::INCORRECT_PASSWORD);
         }
 
-        return true;
+        return $user->id;
     }
 
     public function usernameExists(string $username)
