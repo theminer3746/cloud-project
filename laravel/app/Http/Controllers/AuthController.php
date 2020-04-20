@@ -28,7 +28,7 @@ class AuthController extends Controller
         ]);
 
         try {
-            $this->auth->authenticate($request->username, $request->password);
+            $userId = $this->auth->authenticate($request->username, $request->password);
         } catch (UserException $e) {
             switch ($e->getCode()) {
                 case UserException::INCORRECT_PASSWORD:
@@ -46,6 +46,7 @@ class AuthController extends Controller
 
         $request->session()->put('auth.logged_in', true);
         $request->session()->put('auth.username', $request->username);
+        $request->session()->put('customer_id', $userId);
 
         return redirect('/');
     }
