@@ -9,6 +9,19 @@ class Gateway extends Model
 {
     private $realGateway;
 
+    protected $fillable = [
+        'user_id',
+        'activation_key',
+        'arn',
+        'name',
+        'real_name',
+        'region',
+        'timezone',
+        'type',
+        'volume_arn',
+        's3_bucket_name',
+    ];
+
     public function user()
     {
         return $this->belongsTo('App\User');
