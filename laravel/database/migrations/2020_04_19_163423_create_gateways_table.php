@@ -22,6 +22,8 @@ class CreateGatewaysTable extends Migration
             $table->string('real_name', 120)->unique();
             $table->string('region', 30)->nullable();
             $table->string('timezone', 40)->nullable();
+            $table->string('volume_arn', 120)->nullable()->unique();
+            $table->string('s3_bucket_name', 60)->nullable()->unique();
             $table->string('type', 20);
             $table->timestamps();
 
