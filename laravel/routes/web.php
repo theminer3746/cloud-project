@@ -20,6 +20,7 @@ Route::get('/', function () {
 Route::middleware(['auth.web'])->group(function () {
     Route::get('/gateways', 'GatewayController@showAllGatewaysPage');
     Route::get('/gateways/create', 'GatewayController@showGatewayActivationPage');
+    Route::post('/gateways', 'GatewayController@activateGateway');
 });
 
 // Route::get('/users', 'UserController@create');
