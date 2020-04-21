@@ -17,7 +17,7 @@ class CreateGatewaysTable extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->string('activation_key', 50)->unique();
-            $table->string('arn', 120);
+            $table->string('arn', 120)->unique();
             $table->string('name', 120);
             $table->string('real_name', 120)->unique();
             $table->string('region', 30)->nullable();
