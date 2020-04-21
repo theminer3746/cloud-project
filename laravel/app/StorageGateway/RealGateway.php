@@ -6,6 +6,10 @@ use App\Exceptions\GatewayException;
 use AWS;
 use App\S3;
 use App\StorageGateway\Gateway;
+use App\Jobs\AddAllAvailableLocalDisksToCache;
+use App\Jobs\SetSMBGuestPassword;
+use App\Jobs\CreateSMBFileShare;
+use Aws\StorageGateway\Exception\StorageGatewayException;
 
 class RealGateway
 {
@@ -25,20 +29,23 @@ class RealGateway
         $gatewayARN = $activationResult['GatewayARN'];
         $bucketARN = $activationResult['bucketARN'];
 
-        $this->addAllAvailableLocalDisksToCache($gatewayARN);
+        AddAllAvailableLocalDisksToCache::withChain([
+            new SetSMBGuestPassword($gatewayARN, $smbPassword),
+            new CreateSMBFileShare($gatewayARN, $bucketARN, $customerId),
+        ])->dispatch($gatewayARN)->delay(now()->addSeconds(30));
 
-        $this->setSMBGuestPassword($gatewayARN, $smbPassword);
-
-        $this->createSMBFileShare($gatewayARN, $bucketARN, $customerId);
+        return $activationResult;
     }
 
     public function activateGateway(string $gatewayActivationKey, int $customerId)
     {
         $s3CreationResult = $this->s3->createBucketAndBlockPublicAccess('gateway-customer-' . $customerId);
 
+        $realGatewayName = 'gateway-customer-' . $customerId . '-' . bin2hex(random_bytes(10));
+
         $gatewayActivationResult = $this->gatewayClient->activateGateway([
             'ActivationKey' => $gatewayActivationKey,
-            'GatewayName' => 'gateway-customer-' . $customerId,
+            'GatewayName' => $realGatewayName,
             'GatewayRegion' => 'ap-southeast-1',
             'GatewayTimezone' => 'GMT+7:00',
             'GatewayType' => 'FILE_S3',
@@ -49,7 +56,7 @@ class RealGateway
                 ],
                 [
                     'Key' => 'customer_id',
-                    'Value' => (string) $customerId,
+                    'Value' => strval($customerId),
                 ],
             ],
         ]);
@@ -59,6 +66,7 @@ class RealGateway
             'realBucketName' => $s3CreationResult['realBucketName'],
             'bucketLocation' => $s3CreationResult['location'],
             'bucketARN' => $s3CreationResult['bucketARN'],
+            'realGatewayName' => $realGatewayName,
         ];
     }
 
@@ -102,7 +110,7 @@ class RealGateway
 
     public function createSMBFileShare(string $gatewayARN, string $bucketARN, int $customerId)
     {
-        $this->gatewayClient->createSMBFileShare([
+        $smbShareCreationResult = $this->gatewayClient->createSMBFileShare([
             'Authentication' => 'GuestAccess',
             'ClientToken' => sha1(random_bytes(40)), // REQUIRED
             'DefaultStorageClass' => 'S3_STANDARD',
@@ -122,5 +130,30 @@ class RealGateway
                 ],
             ],
         ]);
+
+        return [
+            'FileShareARN' => $smbShareCreationResult['FileShareARN'],
+        ];
+    }
+
+    public function getSMBAccessUrl(string $gatewayARN)
+    {
+        $ipv4 = null;
+
+        try {
+            $ipv4 = $this->gatewayClient->describeGatewayInformation([
+                'GatewayARN' => $gatewayARN
+            ])['GatewayNetworkInterfaces'][0]['Ipv4Address'];
+        } catch (StorageGatewayException $e) {
+
+        }
+
+        $s3BucketName = (new Gateway)->where('arn', $gatewayARN)->value('s3_bucket_name');
+
+        if(is_null($ipv4)){
+            return 'Gateway is offline';
+        } else {
+            return '\\\\' . $ipv4 . '\\' . $s3BucketName;
+        }
     }
 }
