@@ -47,6 +47,16 @@ class Gateway extends Model
             throw new GatewayException('Gateway already exists');
         }
 
-        $this->realGateway->activateGateway($gatewayActivationKey, $gatewayName, $customerId);
+        $result = $this->realGateway->activateAndInitializeGateway($gatewayActivationKey, $customerId, $password);
+    
+        $this->user_id = $customerId;
+        $this->activation_key = $gatewayActivationKey;
+        $this->arn = $result['GatewayARN'];
+        $this->s3_bucket_name = $result['realBucketName'];
+        $this->name = $gatewayName;
+        $this->real_name = $result['realGatewayName'];
+        $this->type = 'FILE_S3';
+
+        $this->save();
     }
 }
