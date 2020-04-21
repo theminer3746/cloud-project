@@ -48,10 +48,15 @@ class GatewayController extends Controller
             'smb_password' => 'required|between:6,50',
         ]);
 
-        return $this->gateway->activateGateway(
+        $this->gateway->setRealGateway(new \App\StorageGateway\RealGateway(new \App\S3));
+
+        $this->gateway->activateGateway(
             $req->activation_key,
             $req->gateway_name,
-            $req->session()->get('customer_id')
+            $req->session()->get('auth.user_id'),
+            $req->smb_password,
         );
+
+        return redirect('/');
     }
 }
