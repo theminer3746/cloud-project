@@ -46,7 +46,7 @@ class AuthController extends Controller
 
         $request->session()->put('auth.logged_in', true);
         $request->session()->put('auth.username', $request->username);
-        $request->session()->put('customer_id', $userId);
+        $request->session()->put('auth.user_id', $userId);
 
         return redirect('/');
     }
