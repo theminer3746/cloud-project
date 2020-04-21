@@ -44,7 +44,8 @@ class GatewayController extends Controller
     {
         $req->validate([
             'activation_key' => 'required|regex:/^[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$/|between:1,50',
-            'gateway_name' => 'required|alpha_dash|regex:/^[ -\.0-\[\]-~]*[!-\.0-\[\]-~][ -\.0-\[\]-~]*$/|between:2,255',
+            'gateway_name' => 'required',
+            'smb_password' => 'required|between:6,50',
         ]);
 
         return $this->gateway->activateGateway(
