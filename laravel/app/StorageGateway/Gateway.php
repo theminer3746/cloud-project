@@ -3,6 +3,7 @@
 namespace App\StorageGateway;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Exceptions\GatewayException;
 
 class Gateway extends Model
 {
