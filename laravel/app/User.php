@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-    public function gateway()
+    public function gateways()
     {
         return $this->hasMany('App\StorageGateway\Gateway');
     }
