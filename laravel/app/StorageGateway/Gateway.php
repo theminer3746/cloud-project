@@ -37,8 +37,12 @@ class Gateway extends Model
         return $this->realGateway;
     }
 
-    public function activateGateway(string $gatewayActivationKey, string $gatewayName, int $customerId)
-    {
+    public function activateGateway(
+        string $gatewayActivationKey,
+        string $gatewayName,
+        int $customerId,
+        string $password
+    ) {
         if($this->where('activation_key', $gatewayActivationKey)->exists()){
             throw new GatewayException('Gateway already exists');
         }
