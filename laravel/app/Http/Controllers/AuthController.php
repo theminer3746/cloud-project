@@ -32,14 +32,16 @@ class AuthController extends Controller
         } catch (UserException $e) {
             switch ($e->getCode()) {
                 case UserException::INCORRECT_PASSWORD:
-                    return response()->json([
+                    return redirect()->back()->withErrors([
                         'message' => 'Incorrect Password or user does not exists'
-                    ], 401);
+                    ]);
+
                     break;
                 case UserException::USER_NOT_EXISTS:
-                    return response()->json([
+                    return redirect()->back()->withErrors([
                         'message' => 'Incorrect Password or user does not exists'
-                    ], 401);
+                    ]);
+                    
                     break;
             }
         }
