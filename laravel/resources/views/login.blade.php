@@ -1,6 +1,20 @@
 @extends('layout.master')
 
 @section('body')
+    @if ($errors->any())
+        <div class="columns">
+            <div class="field column is-4 is-offset-4">
+                <div class="notification is-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <form action="/auth/login" method="post">
         @csrf
         <div class="columns">
