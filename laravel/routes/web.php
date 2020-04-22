@@ -23,7 +23,8 @@ Route::middleware(['auth.web'])->group(function () {
     Route::post('/gateways', 'GatewayController@activateGateway');
 });
 
-// Route::get('/users', 'UserController@create');
+Route::get('/users', 'UserController@create');
+Route::post('/users', 'UserController@store');
 
 Route::get('/auth/login', 'AuthController@showLoginPage');
 Route::post('/auth/login', 'AuthController@login');

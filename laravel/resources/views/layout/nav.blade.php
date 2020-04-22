@@ -17,6 +17,12 @@
                 Home
             </a>
 
+            @if(!App\Auth::isLoggedIn())
+                <a class="navbar-item" href="/users">
+                    Register
+                </a>
+            @endif
+
             @if(App\Auth::isLoggedIn())
                 <a class="navbar-item" id="logoutButton">
                     Logout

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -24,7 +25,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return view('user.register');
     }
 
     /**
@@ -33,9 +34,23 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, User $user)
     {
-        //
+        $request->validate([
+            'username' => 'required|alphadash',
+            'password' => 'required',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        if($user->usernameExists($request->username)){
+            return redirect()->back()->withErrors([
+                'message' => 'Username already exists',
+            ]);
+        } else {
+            $user->addUser($request->username, $request->password);
+            
+            return redirect('/');
+        }
     }
 
     /**
